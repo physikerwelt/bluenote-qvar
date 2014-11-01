@@ -1,0 +1,73 @@
+\documentclass[11pt]{bluenote}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url,graphicx,wrapfig}
+\usepackage{amsfonts,amstext}
+\usepackage{todonotes}
+%\addbibresource{qvar}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{color}
+\usepackage{pdfpages}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  showstringspaces=false,
+  commentstyle=\color{gray}\upshape,
+  breaklines=true, 
+  numbers=left,
+  breakatwhitespace=false         % sets if automatic breaks should only happen at whitespac  
+}
+
+\lstdefinelanguage{XML}
+{
+  morestring=[b]",
+  morestring=[s]{>}{<},
+  morecomment=[s]{<?}{?>},
+  morecomment=[s]{!--}{--},
+  morecomment=[s][\color{red}]{\$}{\$},
+  commentstyle=\color{darkgreen},
+  stringstyle=\color{black},
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{cyan},
+  basicstyle=\footnotesize, 
+  morekeywords={xmlns,version,type}% list your attributes here
+}
+\title{qvar: Meta characters in MathSearch} 
+\author{Moritz Schubotz}
+\begin{document}
+\maketitle
+%\begin{abstract}\end{abstract}
+In order to mark anonymous variables, MathWebSearch introduced a new XML element called \texttt{qvar}.
+This element might have content, but no attributes accoring to the initial definition at \url{https://trac.mathweb.org/MWS/wiki/MwsQuery}.
+
+We analysed the behaviour of the [search pattern]-[math object] tuple matching by the MathWebSearch implementation downloaded from \url{https://github.com/KWARC/mws}. We identified three cases:
+\begin{enumerate}
+\item[Case 1] Given a search pattern that does not contain any qvar elements: The tuple is a match, if the math object contains the search pattern as a subtree.
+\item[Case 2] Given a search pattern that contains one qvar: The tuple is a match, if the math object has an arbitrary non-empty tree structure at the position where the pattern has the qvar element.
+\item[Case 3] Given the pattern contains multiple qvar elements: In addition to case 2, matching sub-trees must be the same if the content of the qvar element in the search pattern is the same.
+\end{enumerate}
+
+In the NTCIR-11 Math-2 task, this definition was not communicated to the participants and it was a task for each participant to find a good interpretation of the qvar elements contained in the query.
+\section{Formal Definition}
+The qvar element can formally be seen as $\alpha$ equivalence ($\lambda x.x$ is $\alpha$-equivalent to $\lambda y.y$ )for XML sub-tree matching.
+Let $s$ be the content MathML tree that represent the search pattern $m$ the content mathml tree that represents the math object.
+We define a that $s$ matches $m$ if the following holds
+$\lambda q_1,q2\dots q_n. s(q_1,q2\dots q_n)\subset m$...
+\todo{continue writing here}
+\section{Example}
+On the XML level \texttt{<a>\textcolor{red}{<qvar>x</qvar>}</a>} matches \texttt{<a><b /></a>} and \texttt{<a><c><d/>text</c><a>} but not \texttt{<a>text</a>} or \texttt{<a><e /><f /></a>}.
+
+\newcommand{\qvar}[1]{\ensuremath{\textcolor{red}{?\{#1\}}}}
+In the following example we visualize \texttt{<qvar>x</qvar>} via \qvar{x}. The search pattern
+$\operatorname{\hat H}\qvar{x}=E\qvar{x}$ matches $\operatorname{\hat H}\textcolor{red}{(a+b)}=E\textcolor{red}{(a+b)}$ or $\operatorname{\hat H}\textcolor{red}{\Psi}=E\textcolor{red}{\Psi}$ but not $\operatorname{\hat H}\Psi=E\phi$.
+%\listoftodos
+%\printbibliography
+\end{document}
